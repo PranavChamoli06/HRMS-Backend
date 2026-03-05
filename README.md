@@ -1,13 +1,23 @@
 # 🚀 HRMS Backend (Enterprise Spring Boot Project)
 
 A production-ready **Hotel Reservation and Management System (HRMS) backend** built using **Spring Boot**.
-This project demonstrates enterprise backend architecture including **JWT authentication, role-based authorization, Flyway database migrations, Docker containerization, Swagger documentation, and monitoring with Spring Boot Actuator**.
+
+This project demonstrates **enterprise backend architecture** including:
+
+* JWT authentication
+* Role-based and permission-based authorization
+* Reservation management system
+* Analytics dashboard APIs
+* Flyway database migrations
+* Docker containerization
+* Swagger API documentation
+* Monitoring with Spring Boot Actuator
 
 ---
 
 # 📌 Project Overview
 
-This backend provides secure REST APIs for managing HR operations such as employee management, authentication, and audit logging.
+This backend provides secure REST APIs for managing **hotel reservations, rooms, users, and analytics dashboards**.
 
 The system is designed following **clean architecture principles** and **enterprise backend best practices**.
 
@@ -18,6 +28,8 @@ Key design goals:
 * Versioned database schema
 * Containerized deployment
 * Production-ready monitoring
+* Business rule enforcement
+* Analytics-ready backend
 
 ---
 
@@ -58,6 +70,167 @@ src/main/java/com/example/HRMS
 * Method level security
 * Custom authentication entry points
 * Access denied handling
+* Secure API endpoints
+
+---
+
+# 🏨 Reservation System Features
+
+Implemented in **Phase 5 Extension (Day 17–21)**.
+
+### Room Management
+
+Each reservation is linked to a **room**.
+
+Room fields:
+
+* Room number
+* Room type
+* Price per night
+
+### Reservation Management
+
+Reservations contain:
+
+* User
+* Room
+* Check-in date
+* Check-out date
+* Reservation status
+
+Reservation status options:
+
+```
+PENDING
+CONFIRMED
+CANCELLED
+```
+
+---
+
+# 📅 Reservation APIs
+
+Create reservation
+
+```
+POST /api/v1/reservations
+```
+
+Get reservations
+
+```
+GET /api/v1/reservations
+```
+
+Update reservation
+
+```
+PUT /api/v1/reservations/{id}
+```
+
+Delete reservation
+
+```
+DELETE /api/v1/reservations/{id}
+```
+
+Update reservation status
+
+```
+PATCH /api/v1/reservations/{id}/status
+```
+
+---
+
+# 📊 Pagination, Sorting & Filtering
+
+The API supports enterprise-level queries.
+
+Example requests:
+
+Pagination
+
+```
+GET /api/v1/reservations?page=0&size=10
+```
+
+Sorting
+
+```
+GET /api/v1/reservations?page=0&size=10&sort=checkInDate,asc
+```
+
+Filtering by user
+
+```
+GET /api/v1/reservations?username=admin
+```
+
+Filtering by date
+
+```
+GET /api/v1/reservations?startDate=2026-04-01
+```
+
+---
+
+# ⚙ Business Rules Implemented
+
+The system enforces real-world booking logic.
+
+### Date Validation
+
+```
+checkInDate must be before checkOutDate
+```
+
+### Overlapping Booking Prevention
+
+The system prevents **double booking of the same room**.
+
+### Reservation Status Rules
+
+Valid transitions:
+
+```
+PENDING → CONFIRMED
+PENDING → CANCELLED
+CONFIRMED → CANCELLED
+```
+
+Invalid transitions are rejected.
+
+---
+
+# 📈 Analytics Dashboard APIs
+
+The backend provides analytics data for **admin dashboards**.
+
+### Total Revenue
+
+```
+GET /api/v1/analytics/revenue
+```
+
+### Room Occupancy Rate
+
+```
+GET /api/v1/analytics/occupancy
+```
+
+### Monthly Revenue
+
+```
+GET /api/v1/analytics/monthly-revenue
+```
+
+### Reservation Cancellation Rate
+
+```
+GET /api/v1/analytics/cancellation-rate
+```
+
+These endpoints are **restricted to ADMIN users**.
 
 ---
 
@@ -75,6 +248,13 @@ Migration scripts are located in:
 
 ```
 src/main/resources/db/migration
+```
+
+Example migrations:
+
+```
+V1__initial_schema.sql
+V2__room_reservation_schema.sql
 ```
 
 ---
@@ -141,7 +321,7 @@ This module can later integrate:
 * Machine Learning models
 * Python microservices
 * OpenAI APIs
-* Predictive HR analytics
+* Predictive reservation analytics
 
 ---
 
@@ -209,21 +389,32 @@ mvn spring-boot:run
 
 # 🌐 Default Endpoints
 
-Authentication:
+Authentication
 
 ```
 POST /api/v1/auth/login
 POST /api/v1/auth/refresh
 ```
 
-Employee APIs:
+Reservation APIs
 
 ```
-GET /api/v1/employees
-POST /api/v1/employees
+POST /api/v1/reservations
+GET /api/v1/reservations
+PUT /api/v1/reservations/{id}
+DELETE /api/v1/reservations/{id}
 ```
 
-AI Module:
+Analytics APIs
+
+```
+GET /api/v1/analytics/revenue
+GET /api/v1/analytics/occupancy
+GET /api/v1/analytics/monthly-revenue
+GET /api/v1/analytics/cancellation-rate
+```
+
+AI Module
 
 ```
 GET /api/v1/ai/analyze
@@ -246,11 +437,12 @@ These allow the application to run in containers with MySQL.
 
 Planned improvements:
 
-* HR modules (leave, payroll, attendance)
-* AI based HR analytics
+* Frontend dashboard (React)
+* AI-powered reservation analytics
 * CI/CD pipeline
 * Kubernetes deployment
-* Distributed microservices architecture
+* Microservices architecture
+* Real-time booking notifications
 
 ---
 
