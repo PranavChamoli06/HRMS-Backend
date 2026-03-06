@@ -9,3 +9,8 @@ export const createReservation = async (reservationData) => {
   const response = await api.post("/v1/reservations", reservationData);
   return response.data;
 };
+
+export const updateReservation = async (id, reservationData) => {
+  const response = await api.put(`/v1/reservations/${id}`, reservationData);
+  return response.data;
+};

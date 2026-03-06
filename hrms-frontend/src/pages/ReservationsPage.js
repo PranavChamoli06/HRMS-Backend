@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getReservations, createReservation } from "../services/reservationService";
+import {
+  getReservations,
+  createReservation,
+  updateReservation
+} from "../services/reservationService";
 
 function ReservationsPage() {
 
@@ -8,6 +12,7 @@ function ReservationsPage() {
   const [roomNumber, setRoomNumber] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const fetchReservations = async () => {
     try {
@@ -22,46 +27,49 @@ function ReservationsPage() {
     fetchReservations();
   }, []);
 
+  const handleEdit = (reservation) => {
+    setEditingId(reservation.id);
+    setUsername(reservation.username);
+    setRoomNumber(reservation.roomNumber);
+    setCheckInDate(reservation.checkInDate);
+    setCheckOutDate(reservation.checkOutDate);
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+      e.preventDefault();
 
-    try {
-
-      let roomId = null;
-
-      if (roomNumber === "101") roomId = 1;
-      if (roomNumber === "102") roomId = 2;
-      if (roomNumber === "103") roomId = 3;
-      if (roomNumber === "104") roomId = 4;
-
-      if (!roomId) {
-        alert("Invalid room number");
-        return;
-      }
-      
-      const reservationData = {
-          userId: 1,
-          roomId: roomId,
+      try {
+          const reservationData = {
+          username,
+          roomId: Number(roomNumber),
           checkInDate,
           checkOutDate
-      };
+        };
 
-      await createReservation(reservationData);
+      if (editingId) {
 
-      alert("Reservation created successfully");
+        await updateReservation(editingId, reservationData);
+        alert("Reservation updated successfully");
+        setEditingId(null);
 
-      fetchReservations();
+      } else {
 
-      // Clear form after submission
+        await createReservation(reservationData);
+        alert("Reservation created successfully");
+
+      }
+
       setUsername("");
       setRoomNumber("");
       setCheckInDate("");
       setCheckOutDate("");
 
+      fetchReservations();
+
     } catch (error) {
-      console.error("Error creating reservation", error);
-    }
-  };
+      console.error("Error saving reservation", error);
+    } 
+};
 
   return (
 
@@ -69,7 +77,7 @@ function ReservationsPage() {
 
       <h2>Reservations</h2>
 
-      <h3>Create Reservation</h3>
+      <h3>{editingId ? "Edit Reservation" : "Create Reservation"}</h3>
 
       <form onSubmit={handleSubmit}>
 
@@ -107,7 +115,9 @@ function ReservationsPage() {
 
         <br /><br />
 
-        <button type="submit">Create Reservation</button>
+        <button type="submit">
+            {editingId ? "Update Reservation" : "Create Reservation"}
+        </button>
 
       </form>
 
@@ -122,6 +132,7 @@ function ReservationsPage() {
             <th>Room</th>
             <th>Check In</th>
             <th>Check Out</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -135,7 +146,11 @@ function ReservationsPage() {
               <td>{reservation.roomNumber}</td>
               <td>{reservation.checkInDate}</td>
               <td>{reservation.checkOutDate}</td>
-
+              <td>
+                <button onClick={() => handleEdit(reservation)}>
+                  Edit
+                </button>
+              </td>
             </tr>
           ))}
 
