@@ -17,6 +17,7 @@ function LoginPage() {
       console.log("Login success:", data);
 
       localStorage.setItem("token", data.accessToken);
+      localStorage.setItem("role", data.role);
 
       alert("Login successful");
       navigate("/dashboard");

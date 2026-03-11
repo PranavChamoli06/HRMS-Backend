@@ -1,9 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import LoginPage from "./pages/LoginPage";
@@ -12,13 +10,26 @@ import ReservationsPage from "./pages/ReservationsPage";
 import AdminPage from "./pages/AdminPage";
 
 function App() {
+
+  const token = localStorage.getItem("token");
+
   return (
     <BrowserRouter>
 
       <Routes>
 
-        <Route path="/" element={<LoginPage />} />
+        {/* Default Route */}
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+          }
+        />
 
+        {/* Login */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -30,6 +41,7 @@ function App() {
           }
         />
 
+        {/* Reservations */}
         <Route
           path="/reservations"
           element={
@@ -41,12 +53,17 @@ function App() {
           }
         />
 
+        {/* Admin */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
               <DashboardLayout>
-              <AdminPage />
+                {localStorage.getItem("role") === "ADMIN" ? (
+                  <AdminPage />
+                ) : (
+                  <div>Access Denied</div>
+                )}
               </DashboardLayout>
             </ProtectedRoute>
           }
