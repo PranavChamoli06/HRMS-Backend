@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
 import { getReservations } from "../services/reservationService";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 
 function DashboardPage() {
 
@@ -30,11 +39,27 @@ function DashboardPage() {
     (r) => r.checkInDate >= today
   ).length;
 
+  // Monthly analytics calculation
+  const reservationsPerMonth = {};
+
+  reservations.forEach((reservation) => {
+    const month = reservation.checkInDate.substring(0, 7);
+
+    reservationsPerMonth[month] =
+      (reservationsPerMonth[month] || 0) + 1;
+  });
+
+  const chartData = Object.keys(reservationsPerMonth).map((month) => ({
+    month,
+    reservations: reservationsPerMonth[month]
+  }));
+
   return (
     <div>
 
       <h2>Dashboard</h2>
 
+      {/* KPI Cards */}
       <div
         style={{
           display: "flex",
@@ -59,6 +84,36 @@ function DashboardPage() {
           <h3>Upcoming Check-ins</h3>
           <p>{upcomingCheckIns}</p>
         </div>
+
+      </div>
+
+      {/* Reservation Analytics Chart */}
+      <h3 style={{ marginTop: "40px" }}>Reservation Trends</h3>
+
+      <div style={{ width: "100%", height: 300 }}>
+
+        <ResponsiveContainer>
+
+          <LineChart data={chartData}>
+
+            <CartesianGrid strokeDasharray="3 3" />
+
+            <XAxis dataKey="month" />
+
+            <YAxis />
+
+            <Tooltip />
+
+            <Line
+              type="monotone"
+              dataKey="reservations"
+              stroke="#3498db"
+              strokeWidth={3}
+            />
+
+          </LineChart>
+
+        </ResponsiveContainer>
 
       </div>
 
