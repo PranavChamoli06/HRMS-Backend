@@ -55,6 +55,7 @@ function ReservationsPage() {
   };
 
   const handleCancel = async (id) => {
+
     const confirmCancel = window.confirm(
       "Are you sure you want to cancel this reservation?"
     );
@@ -62,15 +63,20 @@ function ReservationsPage() {
     if (!confirmCancel) return;
 
     try {
+
       await cancelReservation(id);
+
       alert("Reservation cancelled successfully");
+
       fetchReservations();
+
     } catch (error) {
       console.error("Error cancelling reservation", error);
     }
   };
 
   const resetForm = () => {
+
     setEditingId(null);
     setUsername("");
     setRoomNumber("");
@@ -79,12 +85,13 @@ function ReservationsPage() {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     try {
 
       const reservationData = {
-        username,
+        
         roomId: Number(roomNumber),
         checkInDate,
         checkOutDate
@@ -93,20 +100,25 @@ function ReservationsPage() {
       if (editingId) {
 
         await updateReservation(editingId, reservationData);
+
         alert("Reservation updated successfully");
 
       } else {
 
         await createReservation(reservationData);
+
         alert("Reservation created successfully");
 
       }
 
       resetForm();
+
       fetchReservations();
 
     } catch (error) {
+
       console.error("Error saving reservation", error);
+
     }
   };
 

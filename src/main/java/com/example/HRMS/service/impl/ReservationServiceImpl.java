@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import com.example.HRMS.entity.ReservationStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -24,11 +26,18 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationResponse create(ReservationRequest request) {
+
         if (request.getCheckInDate().isAfter(request.getCheckOutDate())) {
             throw new RuntimeException("Check-in date cannot be after check-out date");
         }
 
-        User user = userRepository.findById(request.getUserId())
+        // Get logged-in user from JWT
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Room room = roomRepository.findById(request.getRoomId())
@@ -83,7 +92,6 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
-        // update room ONLY if provided
         if (request.getRoomId() != null) {
 
             Room room = roomRepository.findById(request.getRoomId())
