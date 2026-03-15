@@ -137,10 +137,21 @@ public class ReservationServiceImpl implements ReservationService {
 
     private ReservationResponse mapToResponse(Reservation reservation) {
 
+        String username = null;
+        String roomNumber = null;
+
+        if (reservation.getUser() != null) {
+            username = reservation.getUser().getUsername();
+        }
+
+        if (reservation.getRoom() != null) {
+            roomNumber = reservation.getRoom().getRoomNumber();
+        }
+
         return ReservationResponse.builder()
                 .id(reservation.getId())
-                .username(reservation.getUser().getUsername())
-                .roomNumber(reservation.getRoom().getRoomNumber())
+                .username(username)
+                .roomNumber(roomNumber)
                 .checkInDate(reservation.getCheckInDate())
                 .checkOutDate(reservation.getCheckOutDate())
                 .status(reservation.getStatus().name())
