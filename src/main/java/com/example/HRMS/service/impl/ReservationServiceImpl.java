@@ -92,16 +92,19 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
-        if (request.getRoomId() != null) {
-
-            Room room = roomRepository.findById(request.getRoomId())
-                    .orElseThrow(() -> new RuntimeException("Room not found"));
-
-            reservation.setRoom(room);
+        // Only update dates
+        if (request.getCheckInDate() != null) {
+            reservation.setCheckInDate(request.getCheckInDate());
         }
 
-        reservation.setCheckInDate(request.getCheckInDate());
-        reservation.setCheckOutDate(request.getCheckOutDate());
+        if (request.getCheckOutDate() != null) {
+            reservation.setCheckOutDate(request.getCheckOutDate());
+        }
+
+        // Validate dates
+        if (reservation.getCheckInDate().isAfter(reservation.getCheckOutDate())) {
+            throw new RuntimeException("Check-in date cannot be after check-out date");
+        }
 
         Reservation saved = reservationRepository.save(reservation);
 

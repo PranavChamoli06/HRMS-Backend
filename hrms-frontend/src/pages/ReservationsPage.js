@@ -9,7 +9,6 @@ import {
 function ReservationsPage() {
 
   const [reservations, setReservations] = useState([]);
-  const [username, setUsername] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
@@ -48,7 +47,6 @@ function ReservationsPage() {
 
   const handleEdit = (reservation) => {
     setEditingId(reservation.id);
-    setUsername(reservation.username);
     setRoomNumber(reservation.roomNumber);
     setCheckInDate(reservation.checkInDate);
     setCheckOutDate(reservation.checkOutDate);
@@ -78,7 +76,6 @@ function ReservationsPage() {
   const resetForm = () => {
 
     setEditingId(null);
-    setUsername("");
     setRoomNumber("");
     setCheckInDate("");
     setCheckOutDate("");
@@ -138,22 +135,14 @@ function ReservationsPage() {
 
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          readOnly={editingId !== null}
-          style={{
-            backgroundColor: editingId !== null ? "#eee" : "white"
-          }}
-        />
-
-        <br /><br />
-
-        <input
-          type="text"
           placeholder="Room Number"
           value={roomNumber}
           onChange={(e) => setRoomNumber(e.target.value)}
+          readOnly={editingId !== null}
+          style={{
+              backgroundColor: editingId !== null ? "#eee" : "white",
+              cursor: editingId !== null ? "not-allowed" : "text"
+            }}
         />
 
         <br /><br />

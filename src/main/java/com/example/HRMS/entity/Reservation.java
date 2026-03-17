@@ -1,5 +1,6 @@
 package com.example.HRMS.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,7 @@ public class Reservation extends BaseEntity {
     private ReservationStatus status;
 
     @ManyToOne
+    @JsonIgnoreProperties({"reservations"})  // prevents recursion
     @JoinColumn(name = "user_id")
     private User user;
 
