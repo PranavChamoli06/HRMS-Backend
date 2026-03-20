@@ -19,12 +19,7 @@ function App() {
       <Routes>
 
         {/* Default Route */}
-        <Route
-          path="/"
-          element={
-            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-          }
-        />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* Login */}
         <Route path="/login" element={<LoginPage />} />

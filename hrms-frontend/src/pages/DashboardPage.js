@@ -26,15 +26,8 @@ function DashboardPage() {
 
   const fetchReservations = async () => {
     try {
-
       const data = await getReservations(0, 100);
-
-      if (data && data.content) {
-        setReservations(data.content);
-      } else {
-        setReservations([]);
-      }
-
+      setReservations(data?.content || []);
     } catch (error) {
       console.error("Error loading reservations", error);
       setReservations([]);
@@ -43,16 +36,11 @@ function DashboardPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  /* -----------------------------
-     FILTER LOGIC
-  ----------------------------- */
-
+  /* FILTER */
   const filterReservations = () => {
-
     if (dateFilter === "ALL") return reservations;
 
     const now = new Date();
-
     let days = 0;
 
     if (dateFilter === "7D") days = 7;
@@ -62,23 +50,12 @@ function DashboardPage() {
     const cutoff = new Date();
     cutoff.setDate(now.getDate() - days);
 
-    return reservations.filter((r) => {
-
-      const checkIn = new Date(r.checkInDate);
-
-      return checkIn >= cutoff;
-
-    });
-
+    return reservations.filter((r) => new Date(r.checkInDate) >= cutoff);
   };
 
   const filteredReservations = filterReservations();
 
-
-  /* -----------------------------
-     KPI CALCULATIONS
-  ----------------------------- */
-
+  /* KPIs */
   const totalReservations = filteredReservations.length;
 
   const activeReservations = filteredReservations.filter(
@@ -89,20 +66,11 @@ function DashboardPage() {
     (r) => r.checkInDate >= today
   ).length;
 
-
-  /* -----------------------------
-     RESERVATION TRENDS
-  ----------------------------- */
-
+  /* CHART DATA */
   const reservationsPerMonth = {};
-
-  filteredReservations.forEach((reservation) => {
-
-    const month = reservation.checkInDate.substring(0, 7);
-
-    reservationsPerMonth[month] =
-      (reservationsPerMonth[month] || 0) + 1;
-
+  filteredReservations.forEach((r) => {
+    const month = r.checkInDate.substring(0, 7);
+    reservationsPerMonth[month] = (reservationsPerMonth[month] || 0) + 1;
   });
 
   const chartData = Object.keys(reservationsPerMonth).map((month) => ({
@@ -110,32 +78,20 @@ function DashboardPage() {
     reservations: reservationsPerMonth[month]
   }));
 
-
-  /* -----------------------------
-     REVENUE CALCULATION
-  ----------------------------- */
-
+  /* REVENUE */
   const revenuePerMonth = {};
-
-  filteredReservations.forEach((reservation) => {
-
-    const month = reservation.checkInDate.substring(0, 7);
-
-    const pricePerNight = reservation.price || 2500;
-
-    const checkIn = new Date(reservation.checkInDate);
-    const checkOut = new Date(reservation.checkOutDate);
+  filteredReservations.forEach((r) => {
+    const month = r.checkInDate.substring(0, 7);
+    const price = r.price || 2500;
 
     const nights = Math.max(
-      (checkOut - checkIn) / (1000 * 60 * 60 * 24),
+      (new Date(r.checkOutDate) - new Date(r.checkInDate)) /
+        (1000 * 60 * 60 * 24),
       1
     );
 
-    const revenue = nights * pricePerNight;
-
     revenuePerMonth[month] =
-      (revenuePerMonth[month] || 0) + revenue;
-
+      (revenuePerMonth[month] || 0) + nights * price;
   });
 
   const revenueChartData = Object.keys(revenuePerMonth).map((month) => ({
@@ -143,57 +99,27 @@ function DashboardPage() {
     revenue: revenuePerMonth[month]
   }));
 
-
-  /* -----------------------------
-     TOTAL REVENUE
-  ----------------------------- */
-
   const totalRevenue = Object.values(revenuePerMonth).reduce(
-    (sum, value) => sum + value,
+    (a, b) => a + b,
     0
   );
 
-
-  /* -----------------------------
-     REVENUE GROWTH
-  ----------------------------- */
-
   const months = Object.keys(revenuePerMonth).sort();
-
   let revenueGrowth = 0;
 
   if (months.length >= 2) {
-
-    const currentMonth = revenuePerMonth[months[months.length - 1]];
-    const previousMonth = revenuePerMonth[months[months.length - 2]];
-
-    if (previousMonth > 0) {
-      revenueGrowth =
-        ((currentMonth - previousMonth) / previousMonth) * 100;
+    const curr = revenuePerMonth[months.at(-1)];
+    const prev = revenuePerMonth[months.at(-2)];
+    if (prev > 0) {
+      revenueGrowth = ((curr - prev) / prev) * 100;
     }
-
   }
 
   revenueGrowth = Math.round(revenueGrowth);
 
-
-  /* -----------------------------
-     OCCUPANCY TREND
-  ----------------------------- */
-
-  const occupancyData = Object.keys(reservationsPerMonth).map((month) => ({
-    month,
-    occupancy: reservationsPerMonth[month]
-  }));
-
-
-  /* -----------------------------
-     OCCUPANCY GAUGE
-  ----------------------------- */
-
-  const occupiedRooms = filteredReservations.length;
-
+  /* OCCUPANCY */
   const totalRooms = 20;
+  const occupiedRooms = filteredReservations.length;
 
   const occupancyPercent = Math.min(
     Math.round((occupiedRooms / totalRooms) * 100),
@@ -205,166 +131,92 @@ function DashboardPage() {
     { name: "Available", value: 100 - occupancyPercent }
   ];
 
-
   return (
-    <div>
+    <div className="container-fluid">
 
-      <h2>Dashboard</h2>
+      <h2 className="mb-4">Dashboard</h2>
 
-      {/* DATE FILTER */}
-
-      <div style={filterBar}>
-
-        <button onClick={() => setDateFilter("ALL")}>All Time</button>
-        <button onClick={() => setDateFilter("7D")}>Last 7 Days</button>
-        <button onClick={() => setDateFilter("30D")}>Last 30 Days</button>
-        <button onClick={() => setDateFilter("6M")}>Last 6 Months</button>
-
+      {/* FILTER */}
+      <div className="btn-group mb-4">
+        <button className="btn btn-outline-primary" onClick={() => setDateFilter("ALL")}>All</button>
+        <button className="btn btn-outline-primary" onClick={() => setDateFilter("7D")}>7D</button>
+        <button className="btn btn-outline-primary" onClick={() => setDateFilter("30D")}>30D</button>
+        <button className="btn btn-outline-primary" onClick={() => setDateFilter("6M")}>6M</button>
       </div>
-
 
       {/* KPI CARDS */}
+      <div className="d-flex gap-3 flex-wrap mb-4">
 
-      <div style={kpiContainer}>
-
-        <div style={cardStyle}>
-          <h3>Total Reservations</h3>
-          <p>{totalReservations}</p>
+        <div className="card text-center p-3" style={{ width: "200px" }}>
+          <h6>Total Reservations</h6>
+          <h3>{totalReservations}</h3>
         </div>
 
-        <div style={cardStyle}>
-          <h3>Active Reservations</h3>
-          <p>{activeReservations}</p>
+        <div className="card text-center p-3" style={{ width: "200px" }}>
+          <h6>Active</h6>
+          <h3>{activeReservations}</h3>
         </div>
 
-        <div style={cardStyle}>
-          <h3>Upcoming Check-ins</h3>
-          <p>{upcomingCheckIns}</p>
+        <div className="card text-center p-3" style={{ width: "200px" }}>
+          <h6>Upcoming</h6>
+          <h3>{upcomingCheckIns}</h3>
         </div>
 
-        <div style={cardStyle}>
-          <h3>Total Revenue</h3>
-          <p>₹{totalRevenue.toLocaleString()}</p>
+        <div className="card text-center p-3" style={{ width: "200px" }}>
+          <h6>Revenue</h6>
+          <h3>₹{totalRevenue.toLocaleString()}</h3>
         </div>
 
-        <div style={cardStyle}>
-          <h3>Revenue Growth</h3>
-          <p
-            style={{
-              color: revenueGrowth >= 0 ? "green" : "red",
-              fontWeight: "bold"
-            }}
-          >
+        <div className="card text-center p-3" style={{ width: "200px" }}>
+          <h6>Growth</h6>
+          <h3 className={revenueGrowth >= 0 ? "text-success" : "text-danger"}>
             {revenueGrowth >= 0 ? "↑" : "↓"} {Math.abs(revenueGrowth)}%
-          </p>
+          </h3>
         </div>
 
       </div>
 
+      {/* CHARTS */}
+      <div className="row g-4">
 
-      {/* CHART GRID */}
-
-      <div style={chartGrid}>
-
-        <div style={chartCard}>
-
-          <h3>Reservation Trends</h3>
-
-          <ResponsiveContainer width="100%" height={250}>
-
-            <LineChart data={chartData}>
-
-              <CartesianGrid strokeDasharray="3 3" />
-
-              <XAxis dataKey="month" />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="reservations"
-                stroke="#3498db"
-                strokeWidth={3}
-              />
-
-            </LineChart>
-
-          </ResponsiveContainer>
-
+        <div className="col-md-6">
+          <div className="card p-3">
+            <h5>Reservation Trends</h5>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="reservations" stroke="#0d6efd" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-
-        <div style={chartCard}>
-
-          <h3>Revenue Trend</h3>
-
-          <ResponsiveContainer width="100%" height={250}>
-
-            <BarChart data={revenueChartData}>
-
-              <CartesianGrid strokeDasharray="3 3" />
-
-              <XAxis dataKey="month" />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Bar dataKey="revenue" fill="#27ae60" />
-
-            </BarChart>
-
-          </ResponsiveContainer>
-
+        <div className="col-md-6">
+          <div className="card p-3">
+            <h5>Revenue Trend</h5>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={revenueChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="revenue" fill="#198754" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
       </div>
 
-
-      {/* OCCUPANCY TREND */}
-
-      <div style={chartCardFull}>
-
-        <h3>Occupancy Trend</h3>
+      {/* OCCUPANCY */}
+      <div className="card p-3 mt-4 text-center">
+        <h5>Room Occupancy</h5>
 
         <ResponsiveContainer width="100%" height={250}>
-
-          <LineChart data={occupancyData}>
-
-            <CartesianGrid strokeDasharray="3 3" />
-
-            <XAxis dataKey="month" />
-
-            <YAxis />
-
-            <Tooltip />
-
-            <Line
-              type="monotone"
-              dataKey="occupancy"
-              stroke="#e74c3c"
-              strokeWidth={3}
-            />
-
-          </LineChart>
-
-        </ResponsiveContainer>
-
-      </div>
-
-
-      {/* OCCUPANCY GAUGE */}
-
-      <div style={chartCardFull}>
-
-        <h3>Room Occupancy</h3>
-
-        <ResponsiveContainer width="100%" height={250}>
-
           <PieChart>
-
             <Pie
               data={gaugeData}
               dataKey="value"
@@ -372,77 +224,19 @@ function DashboardPage() {
               endAngle={0}
               innerRadius={70}
               outerRadius={100}
-              paddingAngle={3}
             >
-
-              <Cell fill="#e74c3c" />
-              <Cell fill="#ecf0f1" />
-
+              <Cell fill="#dc3545" />
+              <Cell fill="#e9ecef" />
             </Pie>
-
             <Tooltip />
-
           </PieChart>
-
         </ResponsiveContainer>
 
-        <h2 style={{ textAlign: "center", marginTop: "-30px" }}>
-          {occupancyPercent}%
-        </h2>
-
+        <h3 className="mt-2">{occupancyPercent}%</h3>
       </div>
 
     </div>
   );
 }
-
-
-/* -----------------------------
-   STYLES
------------------------------ */
-
-const filterBar = {
-  display: "flex",
-  gap: "10px",
-  marginTop: "15px",
-  marginBottom: "20px"
-};
-
-const kpiContainer = {
-  display: "flex",
-  gap: "20px",
-  flexWrap: "wrap"
-};
-
-const cardStyle = {
-  background: "#ecf0f1",
-  padding: "20px",
-  width: "220px",
-  borderRadius: "10px",
-  textAlign: "center",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.15)"
-};
-
-const chartGrid = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "20px",
-  marginTop: "30px"
-};
-
-const chartCard = {
-  background: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
-};
-
-const chartCardFull = {
-  background: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-  marginTop: "20px"
-};
 
 export default DashboardPage;

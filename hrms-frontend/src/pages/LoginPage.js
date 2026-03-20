@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,13 @@ function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,41 +36,44 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+  <div className="d-flex justify-content-center align-items-center vh-100">
+
+    <div className="card p-4 shadow" style={{ width: "350px" }}>
+
+      <h3 className="text-center mb-3">HRMS Login</h3>
 
       <form onSubmit={handleLogin}>
 
-        <div>
-          <label>Username</label>
-          <br />
+        <div className="mb-3">
+          <label className="form-label">Username</label>
           <input
+            className="form-control"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
 
-        <br />
-
-        <div>
-          <label>Password</label>
-          <br />
+        <div className="mb-3">
+          <label className="form-label">Password</label>
           <input
+            className="form-control"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
-        <br />
-
-        <button type="submit">Login</button>
+        <button className="btn btn-primary w-100" type="submit">
+          Login
+        </button>
 
       </form>
 
     </div>
-  );
+
+  </div>
+);
 }
 
 export default LoginPage;

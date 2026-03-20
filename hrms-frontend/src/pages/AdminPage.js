@@ -1,27 +1,14 @@
 import { useEffect, useState } from "react";
-import {
-  getUsers,
-  updateUserRole,
-  createUser
-} from "../services/userService";
+import { getUsers, updateUserRole, createUser } from "../services/userService";
 
 function AdminPage() {
+
   const [users, setUsers] = useState([]);
   const [loadingUserId, setLoadingUserId] = useState(null);
 
-  // Create user state
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("STAFF");
-
-  // UX states
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -32,13 +19,15 @@ function AdminPage() {
     }
   };
 
-  const handleRoleChange = async (userId, newRole) => {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleRoleChange = async (userId, role) => {
     try {
       setLoadingUserId(userId);
-
-      await updateUserRole(userId, newRole);
-
-      await fetchUsers();
+      await updateUserRole(userId, role);
+      fetchUsers();
     } catch (error) {
       console.error("Error updating role", error);
     } finally {
@@ -49,121 +38,102 @@ function AdminPage() {
   const handleCreateUser = async (e) => {
     e.preventDefault();
 
-    setSuccessMessage("");
-    setErrorMessage("");
-
-    // Validation
-    if (!newUsername || !newPassword) {
-      setErrorMessage("Username and password are required");
-      return;
-    }
-
     try {
-      setCreating(true);
-
-      const userData = {
+      await createUser({
         username: newUsername,
         password: newPassword,
         role: newRole
-      };
+      });
 
-      await createUser(userData);
-
-      setSuccessMessage("User created successfully");
+      alert("User created successfully");
 
       setNewUsername("");
       setNewPassword("");
       setNewRole("STAFF");
 
-      await fetchUsers();
+      fetchUsers();
 
     } catch (error) {
-      console.error(error);
-      setErrorMessage("Failed to create user");
-    } finally {
-      setCreating(false);
+      console.error("Error creating user", error);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>User Management</h2>
+    <div className="container-fluid">
 
-      {/* Messages */}
-      {successMessage && (
-        <p style={{ color: "green" }}>{successMessage}</p>
-      )}
+      <h2 className="mb-4">Admin Panel</h2>
 
-      {errorMessage && (
-        <p style={{ color: "red" }}>{errorMessage}</p>
-      )}
+      {/* CREATE USER FORM */}
+      <div className="card p-3 mb-4">
 
-      {/* Create User Form */}
-      <h3>Create User</h3>
+        <h4>Create User</h4>
 
-      <form onSubmit={handleCreateUser}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={newUsername}
-          onChange={(e) => setNewUsername(e.target.value)}
-        />
+        <form onSubmit={handleCreateUser}>
 
-        <br /><br />
+          <input
+            className="form-control mb-2"
+            type="text"
+            placeholder="Username"
+            value={newUsername}
+            onChange={(e) => setNewUsername(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
+          <input
+            className="form-control mb-2"
+            type="password"
+            placeholder="Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
 
-        <br /><br />
+          <select
+            className="form-control mb-2"
+            value={newRole}
+            onChange={(e) => setNewRole(e.target.value)}
+          >
+            <option value="ADMIN">ADMIN</option>
+            <option value="MANAGER">MANAGER</option>
+            <option value="STAFF">STAFF</option>
+          </select>
 
-        <select
-          value={newRole}
-          onChange={(e) => setNewRole(e.target.value)}
-        >
-          <option value="ADMIN">ADMIN</option>
-          <option value="MANAGER">MANAGER</option>
-          <option value="STAFF">STAFF</option>
-        </select>
+          <button className="btn btn-success">
+            Create User
+          </button>
 
-        <br /><br />
+        </form>
 
-        <button type="submit" disabled={creating}>
-          {creating ? "Creating..." : "Create User"}
-        </button>
-      </form>
+      </div>
 
-      <hr />
+      {/* USERS TABLE */}
+      <div className="card p-3">
 
-      {/* User Table */}
-      {users.length === 0 ? (
-        <p>No users found</p>
-      ) : (
-        <table border="1" style={{ marginTop: "20px", width: "60%" }}>
-          <thead>
+        <table className="table table-bordered table-striped mb-0">
+
+          <thead className="table-light">
             <tr>
               <th>ID</th>
               <th>Username</th>
               <th>Role</th>
+              <th>Change Role</th>
             </tr>
           </thead>
 
           <tbody>
+
             {users.map((user) => (
+
               <tr key={user.id}>
+
                 <td>{user.id}</td>
                 <td>{user.username}</td>
+                <td>{user.role}</td>
 
                 <td>
+
                   <select
+                    className="form-select"
                     value={user.role}
-                    disabled={
-                      loadingUserId === user.id ||
-                      user.username === "admin" // prevent self-demotion
-                    }
+                    disabled={loadingUserId === user.id}
                     onChange={(e) =>
                       handleRoleChange(user.id, e.target.value)
                     }
@@ -173,17 +143,18 @@ function AdminPage() {
                     <option value="STAFF">STAFF</option>
                   </select>
 
-                  {loadingUserId === user.id && (
-                    <span style={{ marginLeft: "10px" }}>
-                      Updating...
-                    </span>
-                  )}
                 </td>
+
               </tr>
+
             ))}
+
           </tbody>
+
         </table>
-      )}
+
+      </div>
+
     </div>
   );
 }

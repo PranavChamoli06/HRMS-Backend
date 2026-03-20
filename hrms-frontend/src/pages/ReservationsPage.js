@@ -18,27 +18,20 @@ function ReservationsPage() {
 
   const fetchReservations = async () => {
     try {
-
       const data = await getReservations(page, 10);
-
       setReservations(data.content);
       setTotalPages(data.totalPages);
-
     } catch (error) {
       console.error("Error fetching reservations", error);
     }
   };
 
   const nextPage = () => {
-    if (page < totalPages - 1) {
-      setPage(page + 1);
-    }
+    if (page < totalPages - 1) setPage(page + 1);
   };
 
   const previousPage = () => {
-    if (page > 0) {
-      setPage(page - 1);
-    }
+    if (page > 0) setPage(page - 1);
   };
 
   useEffect(() => {
@@ -53,28 +46,21 @@ function ReservationsPage() {
   };
 
   const handleCancel = async (id) => {
-
     const confirmCancel = window.confirm(
       "Are you sure you want to cancel this reservation?"
     );
-
     if (!confirmCancel) return;
 
     try {
-
       await cancelReservation(id);
-
       alert("Reservation cancelled successfully");
-
       fetchReservations();
-
     } catch (error) {
       console.error("Error cancelling reservation", error);
     }
   };
 
   const resetForm = () => {
-
     setEditingId(null);
     setRoomNumber("");
     setCheckInDate("");
@@ -82,202 +68,189 @@ function ReservationsPage() {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
-
       const reservationData = {
-        
         roomId: Number(roomNumber),
         checkInDate,
         checkOutDate
       };
 
       if (editingId) {
-
         await updateReservation(editingId, reservationData);
-
         alert("Reservation updated successfully");
-
       } else {
-
         await createReservation(reservationData);
-
         alert("Reservation created successfully");
-
       }
 
       resetForm();
-
       fetchReservations();
 
     } catch (error) {
-
       console.error("Error saving reservation", error);
-
     }
   };
 
   return (
 
-    <div>
+    <div className="container-fluid">
 
-      <h2>Reservations</h2>
+      <h2 className="mb-4">Reservations</h2>
 
-      <h3>
-        {editingId
-          ? `Edit Reservation #${editingId}`
-          : "Create Reservation"}
-      </h3>
+      {/* FORM CARD */}
+      <div className="card p-3 mb-4">
 
-      <form onSubmit={handleSubmit}>
+        <h4>
+          {editingId
+            ? `Edit Reservation #${editingId}`
+            : "Create Reservation"}
+        </h4>
 
-        <input
-          type="text"
-          placeholder="Room Number"
-          value={roomNumber}
-          onChange={(e) => setRoomNumber(e.target.value)}
-          readOnly={editingId !== null}
-          style={{
-              backgroundColor: editingId !== null ? "#eee" : "white",
-              cursor: editingId !== null ? "not-allowed" : "text"
-            }}
-        />
+        <form onSubmit={handleSubmit}>
 
-        <br /><br />
-
-        <input
-          type="date"
-          value={checkInDate}
-          onChange={(e) => setCheckInDate(e.target.value)}
-        />
-
-        <br /><br />
-
-        <input
-          type="date"
-          value={checkOutDate}
-          onChange={(e) => setCheckOutDate(e.target.value)}
-        />
-
-        <br /><br />
-
-        <button type="submit">
-          {editingId ? "Update Reservation" : "Create Reservation"}
-        </button>
-
-        <button
-          type="button"
-          onClick={resetForm}
-          style={{ marginLeft: "10px" }}
-        >
-          {editingId ? "Cancel Edit" : "Clear Form"}
-        </button>
-
-      </form>
-
-      <hr />
-
-      <table
-        border="1"
-        style={{
-          width: "80%",
-          marginTop: "20px",
-          borderCollapse: "collapse"
-        }}
-      >
-
-        <thead style={{ backgroundColor: "#f2f2f2" }}>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Room</th>
-            <th>Check In</th>
-            <th>Check Out</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          {reservations.map((reservation) => (
-
-            <tr
-              key={reservation.id}
+          <div className="mb-2">
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Room Number"
+              value={roomNumber}
+              onChange={(e) => setRoomNumber(e.target.value)}
+              readOnly={editingId !== null}
               style={{
-                textDecoration:
-                  reservation.status === "CANCELLED"
-                    ? "line-through"
-                    : "none",
-                color:
-                  reservation.status === "CANCELLED"
-                    ? "gray"
-                    : "black"
+                backgroundColor: editingId !== null ? "#eee" : "white",
+                cursor: editingId !== null ? "not-allowed" : "text"
               }}
-            >
+            />
+          </div>
 
-              <td>{reservation.id}</td>
-              <td>{reservation.username}</td>
-              <td>{reservation.roomNumber}</td>
-              <td>{reservation.checkInDate}</td>
-              <td>{reservation.checkOutDate}</td>
+          <div className="mb-2">
+            <input
+              className="form-control"
+              type="date"
+              value={checkInDate}
+              onChange={(e) => setCheckInDate(e.target.value)}
+            />
+          </div>
 
-              <td>
+          <div className="mb-2">
+            <input
+              className="form-control"
+              type="date"
+              value={checkOutDate}
+              onChange={(e) => setCheckOutDate(e.target.value)}
+            />
+          </div>
 
-                <button
-                  disabled={reservation.status === "CANCELLED"}
-                  onClick={() => handleEdit(reservation)}
-                >
-                  Edit
-                </button>
+          <button className="btn btn-primary me-2">
+            {editingId ? "Update" : "Create"}
+          </button>
 
-                {reservation.status !== "CANCELLED" && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="btn btn-secondary"
+          >
+            {editingId ? "Cancel Edit" : "Clear Form"}
+          </button>
+
+        </form>
+
+      </div>
+
+      {/* TABLE */}
+      <div className="card p-3">
+
+        <table className="table table-bordered table-striped mb-0">
+
+          <thead className="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Room</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {reservations.map((reservation) => (
+
+              <tr
+                  key={reservation.id}
+                  className={
+                  reservation.status === "CANCELLED"
+                      ? "table-danger text-decoration-line-through"
+                      : ""
+                  }
+              >
+
+                <td>{reservation.id}</td>
+                <td>{reservation.username}</td>
+                <td>{reservation.roomNumber}</td>
+                <td>{reservation.checkInDate}</td>
+                <td>{reservation.checkOutDate}</td>
+
+                <td>
 
                   <button
-                    style={{
-                      marginLeft: "10px",
-                      color: "red"
-                    }}
-                    onClick={() =>
-                      handleCancel(reservation.id)
-                    }
+                    className="btn btn-sm btn-warning me-2"
+                    disabled={reservation.status === "CANCELLED"}
+                    onClick={() => handleEdit(reservation)}
                   >
-                    Cancel
+                    Edit
                   </button>
 
-                )}
+                  {reservation.status !== "CANCELLED" && (
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleCancel(reservation.id)}
+                    >
+                      Cancel
+                    </button>
+                  )}
 
-              </td>
+                </td>
 
-            </tr>
+              </tr>
 
-          ))}
+            ))}
 
-        </tbody>
+          </tbody>
 
-      </table>
+        </table>
 
-      {/* PAGINATION UI */}
+      </div>
 
-      <div style={{ marginTop: "20px" }}>
+      {/* PAGINATION */}
+      <div className="d-flex justify-content-between align-items-center mt-3">
 
-        <button onClick={previousPage} disabled={page === 0}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={previousPage}
+          disabled={page === 0}
+        >
           Previous
         </button>
 
-        <span style={{ margin: "0 10px" }}>
+        <span>
           Page {page + 1} of {totalPages}
         </span>
 
-        <button onClick={nextPage} disabled={page === totalPages - 1}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={nextPage}
+          disabled={page === totalPages - 1}
+        >
           Next
         </button>
 
       </div>
 
     </div>
-
   );
 }
 

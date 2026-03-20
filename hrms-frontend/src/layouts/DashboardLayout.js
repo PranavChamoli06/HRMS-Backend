@@ -6,50 +6,40 @@ function DashboardLayout({ children }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-
-  const confirmLogout = window.confirm("Are you sure you want to logout?");
-
-  if (confirmLogout) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login");
-  }
-
-};
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      navigate("/login");
+    }
+  };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="d-flex min-vh-100">
 
       {/* Sidebar */}
-      <div
-        style={{
-          width: "220px",
-          background: "#2c3e50",
-          color: "white",
-          padding: "20px"
-        }}
-      >
+      <div className="bg-dark text-white p-3" style={{ width: "220px" }}>
 
         <h3>HRMS</h3>
 
-        <p style={{ fontSize: "12px", marginTop: "10px" }}>
+        <p className="small mt-2">
           Role: {role}
         </p>
 
-        <nav style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px" }}>
+        <nav className="d-flex flex-column mt-3">
 
           {(role === "ADMIN" || role === "MANAGER") && (
-            <Link to="/dashboard" style={{ color: "white" }}>
+            <Link to="/dashboard" className="text-white text-decoration-none mb-2 p-2 rounded">
               Dashboard
             </Link>
           )}
 
-          <Link to="/reservations" style={{ color: "white" }}>
-            Reservations
-          </Link>
+            <Link to="/reservations" className="text-white text-decoration-none mb-2 p-2 rounded">
+              Reservations
+            </Link>
 
           {role === "ADMIN" && (
-            <Link to="/admin" style={{ color: "white" }}>
+            <Link to="/admin" className="text-white text-decoration-none mb-2 p-2 rounded">
               Admin
             </Link>
           )}
@@ -59,15 +49,7 @@ function DashboardLayout({ children }) {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          style={{
-            marginTop: "40px",
-            padding: "10px",
-            background: "#e74c3c",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            width: "100%"
-          }}
+          className="btn btn-danger mt-4 w-100"
         >
           Logout
         </button>
@@ -75,8 +57,10 @@ function DashboardLayout({ children }) {
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        {children}
+      <div className="flex-grow-1 p-4">
+        <div className="bg-white bg-opacity-75 p-4 rounded shadow">
+          {children}
+        </div>
       </div>
 
     </div>
