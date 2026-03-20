@@ -30,4 +30,14 @@ public class UserController {
     ) {
         return userService.updateUserRole(id, request.get("role"));
     }
+
+    @PostMapping
+    public User createUser(@RequestBody java.util.Map<String, String> request) {
+
+        String username = request.get("username");
+        String password = request.get("password");
+        String role = request.get("role");
+
+        return userService.createUser(username, password, role);
+    }
 }
