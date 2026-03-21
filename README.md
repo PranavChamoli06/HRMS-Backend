@@ -349,7 +349,7 @@ http://localhost:8080/actuator/health
 
 ### Reservation Table
 
-![Reservations Table](assets/screenshots/reservations-table.png)
+![Reservations Table](assets/screenshots/reservation-table.png)
 
 ### Create / Edit Reservation
 
@@ -361,7 +361,7 @@ http://localhost:8080/actuator/health
 
 ### User Management
 
-![Admin Users](assets/screenshots/admin-users.png)
+![Admin Panel](assets/screenshots/admin-panel.png)
 
 ### Role Management
 
