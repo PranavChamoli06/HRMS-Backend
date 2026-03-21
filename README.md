@@ -1,453 +1,402 @@
-# 🚀 HRMS Backend (Enterprise Spring Boot Project)
+# 🚀 HRMS – Hotel Reservation Management System (Full-Stack)
 
-A production-ready **Hotel Reservation and Management System (HRMS) backend** built using **Spring Boot**.
+A **production-ready full-stack Hotel Reservation Management System (HRMS)** built using:
 
-This project demonstrates **enterprise backend architecture** including:
+* **Frontend:** React
+* **Backend:** Spring Boot
+* **Database:** MySQL
+* **Security:** JWT Authentication
 
-* JWT authentication
-* Role-based and permission-based authorization
-* Reservation management system
-* Analytics dashboard APIs
-* Flyway database migrations
-* Docker containerization
-* Swagger API documentation
-* Monitoring with Spring Boot Actuator
+This project demonstrates **enterprise-level architecture**, combining secure backend APIs with a modern, responsive frontend dashboard.
 
 ---
 
 # 📌 Project Overview
 
-This backend provides secure REST APIs for managing **hotel reservations, rooms, users, and analytics dashboards**.
+HRMS is a complete system for managing:
 
-The system is designed following **clean architecture principles** and **enterprise backend best practices**.
+* Hotel reservations
+* Users and roles
+* Admin operations
+* Analytics dashboards
 
-Key design goals:
+The system is designed with:
 
 * Scalable architecture
 * Secure authentication system
-* Versioned database schema
-* Containerized deployment
-* Production-ready monitoring
-* Business rule enforcement
-* Analytics-ready backend
+* Role-based access control
+* Clean layered backend design
+* Interactive analytics dashboard
 
 ---
 
-# 🏗 Architecture
+# 🏗 Full-Stack Architecture
 
-The project follows a **layered architecture**.
-
+```id="arch1"
+React Frontend (UI + Routing + Charts)
+        │
+        │ Axios (REST API Calls)
+        ▼
+Spring Boot Backend (Business Logic + Security)
+        │
+        ▼
+MySQL Database
 ```
-controller → service → repository → database
-```
 
-Project structure:
+---
 
-```
+# 📂 Project Structure
+
+## 🔙 Backend (Spring Boot)
+
+```id="backend-structure-final"
 src/main/java/com/example/HRMS
 │
-├── config          # Security, JWT, CORS, OpenAPI configuration
+├── config          # Security, JWT, CORS, Swagger configuration
 ├── controller      # REST API controllers
-├── dto             # Request / Response models
+├── dto             # Request & response models
 ├── entity          # Database entities
 ├── exception       # Global exception handling
-├── repository      # Spring Data JPA repositories
+├── repository      # JPA repositories
 ├── service         # Business logic
-│   ├── ai          # AI integration scaffold
-│   └── impl
+│   ├── impl
+│   └── ai
 └── HRMSApplication
 ```
 
----
+Resources:
 
-# 🔐 Security Features
-
-* JWT based authentication
-* Refresh token support
-* BCrypt password hashing
-* Role based access control
-* Permission based authorization
-* Method level security
-* Custom authentication entry points
-* Access denied handling
-* Secure API endpoints
-
----
-
-# 🏨 Reservation System Features
-
-Implemented in **Phase 5 Extension (Day 17–21)**.
-
-### Room Management
-
-Each reservation is linked to a **room**.
-
-Room fields:
-
-* Room number
-* Room type
-* Price per night
-
-### Reservation Management
-
-Reservations contain:
-
-* User
-* Room
-* Check-in date
-* Check-out date
-* Reservation status
-
-Reservation status options:
-
-```
-PENDING
-CONFIRMED
-CANCELLED
+```id="backend-resources-final"
+src/main/resources
+│
+├── application.properties
+├── db/migration
+└── static
 ```
 
 ---
 
-# 📅 Reservation APIs
+## 🎨 Frontend (React)
 
-Create reservation
-
-```
-POST /api/v1/reservations
-```
-
-Get reservations
-
-```
-GET /api/v1/reservations
-```
-
-Update reservation
-
-```
-PUT /api/v1/reservations/{id}
-```
-
-Delete reservation
-
-```
-DELETE /api/v1/reservations/{id}
-```
-
-Update reservation status
-
-```
-PATCH /api/v1/reservations/{id}/status
+```id="frontend-structure-final"
+hrms-frontend/src
+│
+├── api
+├── components
+├── layouts
+├── pages
+│   ├── LoginPage
+│   ├── DashboardPage
+│   ├── ReservationsPage
+│   └── AdminPage
+├── services
+├── utils
+├── App.js
+└── index.js
 ```
 
 ---
 
-# 📊 Pagination, Sorting & Filtering
+## 🔗 Architecture Flow
 
-The API supports enterprise-level queries.
-
-Example requests:
-
-Pagination
-
-```
-GET /api/v1/reservations?page=0&size=10
-```
-
-Sorting
-
-```
-GET /api/v1/reservations?page=0&size=10&sort=checkInDate,asc
-```
-
-Filtering by user
-
-```
-GET /api/v1/reservations?username=admin
-```
-
-Filtering by date
-
-```
-GET /api/v1/reservations?startDate=2026-04-01
+```id="flow-final"
+UI (React Pages)
+   ↓
+Service Layer
+   ↓
+Axios Client (JWT Interceptor)
+   ↓
+Spring Boot Controllers
+   ↓
+Service Layer
+   ↓
+Repository Layer
+   ↓
+MySQL Database
 ```
 
 ---
 
-# ⚙ Business Rules Implemented
+# 🔐 Authentication & Security
 
-The system enforces real-world booking logic.
-
-### Date Validation
-
-```
-checkInDate must be before checkOutDate
-```
-
-### Overlapping Booking Prevention
-
-The system prevents **double booking of the same room**.
-
-### Reservation Status Rules
-
-Valid transitions:
-
-```
-PENDING → CONFIRMED
-PENDING → CANCELLED
-CONFIRMED → CANCELLED
-```
-
-Invalid transitions are rejected.
+* JWT-based authentication
+* Secure login system
+* Protected routes (frontend)
+* Role-Based Access Control (ADMIN / MANAGER / STAFF)
+* Session handling with auto logout
+* BCrypt password encryption
+* Method-level security
 
 ---
 
-# 📈 Analytics Dashboard APIs
+# 🛎 Reservation Management
 
-The backend provides analytics data for **admin dashboards**.
+Full CRUD operations:
 
-### Total Revenue
+* Create reservation
+* View reservations
+* Update reservation
+* Delete reservation
+* Pagination support
 
-```
-GET /api/v1/analytics/revenue
-```
+### Business Rules
 
-### Room Occupancy Rate
-
-```
-GET /api/v1/analytics/occupancy
-```
-
-### Monthly Revenue
-
-```
-GET /api/v1/analytics/monthly-revenue
-```
-
-### Reservation Cancellation Rate
-
-```
-GET /api/v1/analytics/cancellation-rate
-```
-
-These endpoints are **restricted to ADMIN users**.
+* Check-in date must be before check-out date
+* Prevent overlapping room bookings
+* Reservation status transitions enforced
 
 ---
 
-# 🗄 Database Management
+# 👥 Admin Panel
 
-The project uses **Flyway for database migrations**.
+Admin capabilities:
 
-Benefits:
-
-* Version controlled database schema
-* Safe production deployments
-* Automated migrations
-
-Migration scripts are located in:
-
-```
-src/main/resources/db/migration
-```
-
-Example migrations:
-
-```
-V1__initial_schema.sql
-V2__room_reservation_schema.sql
-```
+* View all users
+* Create new users
+* Update user roles
+* Role-based UI restriction
 
 ---
 
-# 🐳 Docker Deployment
+# 📊 Dashboard & Analytics
 
-The backend can run fully inside Docker.
+* KPI cards (Total reservations, Active bookings)
+* Reservation trends (monthly)
+* Revenue analytics
+* Occupancy analytics
 
-### Build and Run
+Built using:
 
-```bash
-docker-compose up --build
-```
-
-This starts:
-
-* Spring Boot application
-* MySQL database container
+* Recharts
 
 ---
 
-# 📑 API Documentation
+# ⚙ Backend Features
 
-Swagger UI is available at:
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
-You can test secured APIs directly using the **JWT token**.
-
----
-
-# 📊 Monitoring
-
-Spring Boot Actuator provides monitoring endpoints.
-
-Health check:
-
-```
-http://localhost:8080/actuator/health
-```
-
-Application info:
-
-```
-http://localhost:8080/actuator/info
-```
+* REST API architecture
+* JWT authentication & authorization
+* Global exception handling
+* Analytics endpoints
+* Flyway database migrations
+* Swagger API documentation
+* Spring Boot Actuator monitoring
 
 ---
 
-# 🧠 AI Integration (Scaffold)
-
-The project includes a placeholder service for future AI integrations.
-
-Example endpoint:
-
-```
-GET /api/v1/ai/analyze
-```
-
-This module can later integrate:
-
-* Machine Learning models
-* Python microservices
-* OpenAI APIs
-* Predictive reservation analytics
-
----
-
-# 🛠 Tech Stack
-
-Backend:
-
-* Java 17
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-
-Security:
-
-* JWT Authentication
-* BCrypt Encryption
-
-Database:
+# 🗄 Database
 
 * MySQL
-* Flyway
+* Flyway migrations
+* Relational schema (Users, Reservations, Rooms)
 
-Infrastructure:
+---
 
-* Docker
-* Docker Compose
+# 🐳 DevOps & Tools
 
-Documentation:
-
+* Docker & Docker Compose
 * Swagger / OpenAPI
-
-Monitoring:
-
 * Spring Boot Actuator
 
 ---
 
-# ▶ Running the Project Locally
+# 📅 API Highlights
 
-### 1️⃣ Clone repository
+### Authentication
 
-```bash
-git clone https://github.com/YOUR_USERNAME/HRMS-Backend.git
+```id="api-auth"
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
 ```
 
-### 2️⃣ Navigate to project
+---
 
-```bash
+### Reservations
+
+```id="api-res"
+GET /api/v1/reservations
+POST /api/v1/reservations
+PUT /api/v1/reservations/{id}
+DELETE /api/v1/reservations/{id}
+```
+
+---
+
+### Users (Admin)
+
+```id="api-user"
+GET /api/v1/users
+POST /api/v1/users
+PUT /api/v1/users/{id}/role
+```
+
+---
+
+### Analytics
+
+```id="api-analytics"
+GET /api/v1/analytics/revenue
+GET /api/v1/analytics/occupancy
+GET /api/v1/analytics/monthly-revenue
+GET /api/v1/analytics/cancellation-rate
+```
+
+---
+
+# ▶ Running the Project
+
+## Backend
+
+```bash id="run-backend"
 cd HRMS-Backend
-```
-
-### 3️⃣ Build project
-
-```bash
 mvn clean install
-```
-
-### 4️⃣ Run application
-
-```bash
 mvn spring-boot:run
 ```
 
 ---
 
-# 🌐 Default Endpoints
+## Frontend
 
-Authentication
-
-```
-POST /api/v1/auth/login
-POST /api/v1/auth/refresh
-```
-
-Reservation APIs
-
-```
-POST /api/v1/reservations
-GET /api/v1/reservations
-PUT /api/v1/reservations/{id}
-DELETE /api/v1/reservations/{id}
-```
-
-Analytics APIs
-
-```
-GET /api/v1/analytics/revenue
-GET /api/v1/analytics/occupancy
-GET /api/v1/analytics/monthly-revenue
-GET /api/v1/analytics/cancellation-rate
-```
-
-AI Module
-
-```
-GET /api/v1/ai/analyze
+```bash id="run-frontend"
+cd hrms-frontend
+npm install
+npm start
 ```
 
 ---
 
-# 📂 Docker Structure
+# 🌐 Application URLs
 
-```
-Dockerfile
-docker-compose.yml
+Frontend:
+
+```id="url-frontend"
+http://localhost:3000
 ```
 
-These allow the application to run in containers with MySQL.
+Backend:
+
+```id="url-backend"
+http://localhost:8080
+```
+
+Swagger:
+
+```id="url-swagger"
+http://localhost:8080/swagger-ui/index.html
+```
 
 ---
 
-# 📈 Future Improvements
+# 📊 Monitoring
 
-Planned improvements:
+Health check:
 
-* Frontend dashboard (React)
-* AI-powered reservation analytics
-* CI/CD pipeline
-* Kubernetes deployment
+```id="monitor-health"
+http://localhost:8080/actuator/health
+```
+
+---
+
+# 🧠 AI Integration (Future Scope)
+
+* Demand prediction
+* Dynamic pricing
+* Recommendation engine
+* Predictive analytics
+
+---
+
+# 📈 Future Enhancements
+
+* AI-based booking prediction
+* Payment integration
+* Email notifications
+* Cloud deployment (AWS / Docker / Kubernetes)
 * Microservices architecture
-* Real-time booking notifications
+
+---
+
+# 🗄 Database Design
+
+## ER Diagram
+
+![ER Diagram](assets/screenshots/er-diagram.png)
+
+---
+
+## Key Relationships
+
+- One user can have multiple reservations  
+- One room can have multiple reservations  
+- Each reservation belongs to one user and one room
+
+---
+
+# 📸 Screenshots
+
+## 🔐 Login Page
+
+![Login Page](assets/screenshots/login.png)
+
+---
+
+## 📊 Dashboard
+
+![Dashboard Overview](assets/screenshots/dashboard.png)
+
+---
+
+## 🛎 Reservations Module
+
+### Reservation Table
+
+![Reservations Table](assets/screenshots/reservations-table.png)
+
+### Create / Edit Reservation
+
+![Reservation Form](assets/screenshots/reservation-form.png)
+
+---
+
+## 👥 Admin Panel
+
+### User Management
+
+![Admin Users](assets/screenshots/admin-users.png)
+
+### Role Management
+
+![Role Update](assets/screenshots/admin-roles.png)
+
+---
+
+## 📈 Analytics Charts
+
+### Reservation Trends
+
+![Reservation Trends](assets/screenshots/chart-reservations.png)
+
+### Revenue Chart
+
+![Revenue Chart](assets/screenshots/chart-revenue.png)
+
+### Occupancy Chart
+
+![Occupancy Chart](assets/screenshots/chart-occupancy.png)
+
+---
+
+# 🎯 System Capabilities
+
+✔ Full-stack application
+✔ Secure authentication system
+✔ Role-based access control
+✔ Reservation management (CRUD + Pagination)
+✔ Analytics dashboard
+✔ Admin management system
+✔ Production-ready UI
 
 ---
 
 # 👨‍💻 Author
 
 Developed by **Pranav Chamoli**
-
----
