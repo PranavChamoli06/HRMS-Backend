@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,6 +29,8 @@ public class ReservationServiceImpl implements ReservationService {
     private final RoomRepository roomRepository;
     private final RoomPricingRepository roomPricingRepository;
     private final PricingService pricingService; // ✅ NEW
+    private static final Logger logger =
+            LoggerFactory.getLogger(ReservationServiceImpl.class);
 
     @Override
     public ReservationResponse create(ReservationRequest request) {
@@ -188,10 +192,8 @@ public class ReservationServiceImpl implements ReservationService {
                     currentDate
             );
 
-            // 🔥 DEBUG LOG
-            System.out.println("Date: " + currentDate +
-                    " | Base: " + basePrice +
-                    " | Final: " + calculated);
+            logger.debug("Pricing -> Date: {} | Base: {} | Final: {}",
+                    currentDate, basePrice, calculated);
 
             totalPrice = totalPrice.add(BigDecimal.valueOf(calculated));
 
